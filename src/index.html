@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Estado Crítico — autómatas en sigilo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{ color-scheme:light;
+  --bg:#dfe6e8; --panel:#f3f6f6; --panel2:#e7eeef; --line:#b9c8cd; --ink:#14232a; --muted:#4f6670; --amber:#b35f00; --danger:#b42b2b; --ok:#1d7a45; --cyan:#0b7f86; --chip:#ffffff;
+  --display:"Chakra Petch","Segoe UI",system-ui,sans-serif; --body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ color-scheme:dark;
+  --bg:#0c1519; --panel:#122027; --panel2:#0f1b21; --line:#29414c; --ink:#e8efe9; --muted:#8aa2ad; --amber:#ffb347; --danger:#ff6b5a; --ok:#6fe39a; --cyan:#5ce1e6; --chip:#18292f; } }
+:root[data-theme="dark"]{ color-scheme:dark; --bg:#0c1519; --panel:#122027; --panel2:#0f1b21; --line:#29414c; --ink:#e8efe9; --muted:#8aa2ad; --amber:#ffb347; --danger:#ff6b5a; --ok:#6fe39a; --cyan:#5ce1e6; --chip:#18292f; }
+*,*::before,*::after{ box-sizing:border-box; }
+html{ height:100%; scroll-padding-top:env(safe-area-inset-top,0px); }
+body{ height:100%; margin:0; background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.45; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+button{ font:inherit; color:inherit; cursor:pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+code{ font-family:var(--mono); }
+#app{ position:relative; height:100%; display:flex; flex-direction:column; }
+/* ---------- HUD ---------- */
+#hud{ display:flex; align-items:center; gap:18px; padding:8px 14px; background:var(--panel); border-bottom:1px solid var(--line); font-size:14px; flex-wrap:wrap; }
+#hud-level{ font-family:var(--display); font-weight:700; font-size:16px; margin-right:auto; }
+.hud-item{ display:flex; gap:6px; align-items:baseline; } .hud-item span{ color:var(--muted); } .hud-item b{ font-family:var(--mono); }
+#hud-alarm{ color:#fff; background:var(--danger); padding:2px 10px; border-radius:3px; font-family:var(--display); font-weight:700; animation:blink .5s steps(2) infinite; }
+#hud-sneak{ color:var(--cyan); font-family:var(--display); }
+@keyframes blink{ 50%{ opacity:.45; } }
+.hud-btn{ background:var(--chip); border:1px solid var(--line); border-radius:6px; padding:5px 12px; font-family:var(--display); font-weight:700; font-size:14px; }
+.hud-btn[aria-pressed="true"]{ background:var(--amber); color:#1a1205; border-color:var(--amber); }
+/* ---------- escenario ---------- */
+#main{ position:relative; flex:1; display:flex; min-height:0; }
+#stage{ position:relative; flex:1; display:flex; align-items:center; justify-content:center; min-width:0; min-height:0; overflow:hidden; background:#0a1216; }
+#game{ position:absolute; inset:0; margin:auto; }
+#game{ display:block; image-rendering:auto; touch-action:none; }
+#hint{ position:absolute; left:50%; bottom:18px; transform:translateX(-50%); max-width:min(620px,90%); background:rgba(10,18,22,.92); color:#e8efe9; border:1px solid #2c4450; border-left:4px solid #ffb347; padding:10px 16px; border-radius:4px; font-size:15px; pointer-events:none; }
+#hint.in{ animation:hintin 14.2s forwards; }
+@keyframes hintin{ 0%{opacity:0; transform:translate(-50%,8px);} 4%{opacity:1; transform:translate(-50%,0);} 95%{opacity:1;} 100%{opacity:0;} }
+@media (prefers-reduced-motion: reduce){ #hint.in{ animation:none; } #hud-alarm{ animation:none; } }
+#ctx-hint{ position:absolute; top:12px; left:50%; transform:translateX(-50%); background:rgba(10,18,22,.9); color:#5ce1e6; padding:6px 14px; border-radius:4px; font-family:var(--display); font-size:14px; pointer-events:none; }
+/* ---------- panel del autómata ---------- */
+#automata-panel{ width:min(400px,38vw); background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; gap:10px; padding:12px; overflow:auto; }
+#automata-panel h2{ font-family:var(--display); font-size:18px; margin:0; display:flex; justify-content:space-between; align-items:center; }
+#ap-tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+#ap-tabs button{ background:var(--chip); border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:13px; }
+#ap-tabs button[aria-pressed="true"]{ border-color:var(--amber); color:var(--amber); font-weight:700; }
+#ap-diagram{ width:100%; height:270px; background:#0f1b21; border-radius:8px; border:1px solid var(--line); }
+#ap-state{ font-family:var(--display); font-size:20px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.dot{ width:14px; height:14px; border-radius:50%; display:inline-block; border:2px solid rgba(255,255,255,.6); }
+#ap-type{ color:var(--muted); font-size:13px; }
+.ap-box{ background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:14px; }
+.ap-box .k{ color:var(--muted); font-size:12px; display:block; margin-bottom:2px; }
+#ap-last{ font-family:var(--mono); font-size:15px; } #ap-last b{ color:var(--amber); } #ap-last .out{ display:block; font-family:var(--body); color:var(--muted); font-size:13px; }
+#ap-w{ font-family:var(--mono); font-size:17px; color:var(--cyan); letter-spacing:1px; word-break:break-all; }
+#ap-path{ font-family:var(--mono); font-size:12px; color:var(--muted); word-break:break-word; }
+.delta{ border-collapse:collapse; width:100%; font-family:var(--mono); font-size:12px; }
+.delta th,.delta td{ border:1px solid var(--line); padding:3px 2px; text-align:center; }
+.delta thead th{ background:var(--panel2); color:var(--amber); }
+.delta tbody th{ background:var(--panel2); }
+.delta td.loop{ color:var(--muted); opacity:.7; }
+.delta tr.cur th{ background:var(--amber); color:#1a1205; }
+.delta td.hit{ background:var(--amber); color:#1a1205; font-weight:700; opacity:1; }
+.wrap-x{ overflow-x:auto; }
+.ap-actions{ display:flex; gap:8px; flex-wrap:wrap; font-size:13px; color:var(--muted); align-items:center; }
+/* ---------- pantallas ---------- */
+.screen{ position:absolute; inset:0; z-index:20; overflow:auto; }
+.screen[hidden], .overlay[hidden], [hidden]{ display:none !important; }
+#menu{ display:grid; grid-template-columns:minmax(0,1fr); }
+#demo{ position:absolute; inset:0; margin:auto; filter:saturate(.8) brightness(.55); }
+.menu-veil{ position:absolute; inset:0; background:linear-gradient(90deg,rgba(8,14,17,.94) 0%,rgba(8,14,17,.78) 42%,rgba(8,14,17,.15) 100%); }
+.menu-body{ position:relative; padding:clamp(24px,6vh,72px) clamp(20px,6vw,90px); max-width:620px; color:#e8efe9; display:flex; flex-direction:column; gap:20px; min-height:100%; justify-content:center; }
+.title{ font-family:var(--display); font-weight:700; font-size:clamp(46px,8vw,92px); line-height:.9; margin:0; letter-spacing:-1px; color:#f4efe3; }
+.title .q{ display:block; font-size:.32em; letter-spacing:0; color:#ffb347; font-weight:500; margin-top:14px; font-family:var(--mono); }
+.lead{ font-size:17px; color:#b9cbd2; max-width:46ch; margin:0; }
+.menu-list{ display:flex; flex-direction:column; gap:8px; max-width:340px; }
+.menu-list button{ text-align:left; background:rgba(18,32,39,.85); border:1px solid #2c4450; border-left:4px solid #2c4450; color:#e8efe9; padding:12px 16px; font-family:var(--display); font-size:19px; font-weight:700; border-radius:3px; transition:border-color .15s, transform .15s; }
+.menu-list button:hover{ border-left-color:#ffb347; transform:translateX(4px); }
+.menu-list button.primary{ border-left-color:#ffb347; }
+#ticker{ list-style:none; margin:0; padding:0; font-family:var(--mono); font-size:13px; color:#9fd3a8; min-height:80px; }
+.page{ background:var(--bg); min-height:100%; padding:clamp(18px,4vh,40px) clamp(16px,5vw,60px); }
+.page h1{ font-family:var(--display); font-size:clamp(30px,4vw,44px); margin:0 0 6px; }
+.page .sub{ color:var(--muted); margin:0 0 22px; max-width:70ch; }
+.back{ background:none; border:1px solid var(--line); border-radius:4px; padding:6px 14px; margin-bottom:18px; font-family:var(--display); }
+#level-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; max-width:1100px; }
+.level-card{ text-align:left; display:flex; flex-direction:column; gap:4px; background:var(--panel); border:1px solid var(--line); border-top:4px solid var(--amber); padding:16px; border-radius:4px; position:relative; min-height:170px; }
+.level-card:disabled{ opacity:.5; cursor:not-allowed; border-top-color:var(--line); }
+.lv-num{ color:var(--muted); font-size:13px; } .lv-name{ font-family:var(--display); font-size:22px; font-weight:700; }
+.lv-sub{ color:var(--muted); font-size:14px; } .lv-meta{ font-size:13px; margin-top:auto; }
+.stars{ color:var(--amber); font-size:20px; letter-spacing:2px; } .lock{ position:absolute; top:14px; right:14px; font-size:12px; color:var(--muted); }
+.how{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; max-width:1100px; }
+.how section{ background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:16px; }
+.how h2{ font-family:var(--display); font-size:19px; margin:0 0 8px; }
+.how kbd{ font-family:var(--mono); background:var(--panel2); border:1px solid var(--line); border-bottom-width:2px; border-radius:3px; padding:0 6px; font-size:13px; }
+.how ul{ margin:0; padding-left:18px; } .how li{ margin:4px 0; }
+.sym-grid{ display:grid; grid-template-columns:auto 1fr; gap:4px 10px; font-size:14px; } .sym-grid code{ color:var(--amber); font-weight:700; }
+/* laboratorio */
+.lab{ display:grid; grid-template-columns:minmax(260px,320px) minmax(0,1fr) minmax(260px,340px); gap:14px; max-width:1500px; }
+.lab .card{ background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px; display:flex; flex-direction:column; gap:10px; min-width:0; }
+.lab h2{ font-family:var(--display); font-size:17px; margin:0; }
+.lab select,.lab input,.lab textarea{ width:100%; background:var(--chip); color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:8px; font-family:var(--mono); font-size:13px; }
+.lab textarea{ min-height:230px; resize:vertical; }
+.btn{ background:var(--chip); border:1px solid var(--line); border-radius:4px; padding:8px 12px; font-family:var(--display); font-weight:700; }
+.btn.main{ background:var(--amber); color:#1a1205; border-color:var(--amber); }
+.row{ display:flex; gap:8px; flex-wrap:wrap; }
+#lab-title{ font-family:var(--display); font-size:24px; font-weight:700; } #lab-kind{ color:var(--muted); font-size:14px; }
+#lab-diagram{ width:100%; height:360px; background:#0f1b21; border-radius:8px; }
+#lab-cur{ font-family:var(--display); font-size:18px; } #lab-wshow{ font-family:var(--mono); color:var(--cyan); word-break:break-all; }
+#lab-syms{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+#lab-syms button{ background:var(--chip); border:1px solid var(--line); border-radius:4px; padding:6px; display:flex; flex-direction:column; align-items:center; font-size:12px; }
+#lab-syms code{ font-size:18px; color:var(--amber); font-weight:700; }
+.trace{ width:100%; border-collapse:collapse; font-size:13px; } .trace th,.trace td{ border-bottom:1px solid var(--line); padding:4px; text-align:left; } .trace .empty{ color:var(--muted); }
+.trace-wrap{ max-height:220px; overflow:auto; }
+#lab-valid{ list-style:none; padding:0; margin:0; font-size:14px; } #lab-valid li{ padding:2px 0; } .ok{ color:var(--ok); } .bad{ color:var(--danger); }
+.classes{ font-family:var(--mono); color:var(--cyan); }
+/* overlays */
+.overlay{ position:absolute; inset:0; z-index:30; display:flex; align-items:center; justify-content:center; background:rgba(5,10,12,.72); padding:16px; }
+.dialog{ background:var(--panel); border:1px solid var(--line); border-top:5px solid var(--amber); border-radius:6px; padding:22px; width:min(560px,100%); max-height:100%; overflow:auto; display:flex; flex-direction:column; gap:12px; }
+.dialog h2{ font-family:var(--display); font-size:30px; margin:0; }
+#ov-caught .dialog{ border-top-color:var(--danger); }
+#caught-trace{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:4px; } #caught-trace li{ display:flex; justify-content:space-between; gap:10px; font-size:14px; } #caught-trace li span{ color:var(--muted); }
+#caught-w{ font-family:var(--mono); color:var(--cyan); }
+#win-stars{ font-size:40px; letter-spacing:6px; color:var(--line); } #win-stars .on{ color:var(--amber); }
+#win-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; } #win-stats div{ background:var(--panel2); border-radius:4px; padding:8px; text-align:center; } #win-stats b{ display:block; font-family:var(--mono); font-size:20px; } #win-stats span{ font-size:12px; color:var(--muted); }
+.challenge{ background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:12px; }
+.challenge h3{ margin:0 0 6px; font-family:var(--display); }
+#ch-opts{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; } #ch-opts button{ background:var(--chip); border:1px solid var(--line); border-radius:4px; padding:10px; font-family:var(--mono); font-weight:700; }
+#ch-opts .ok{ background:var(--ok); color:#06210f; } #ch-opts .bad{ background:var(--danger); color:#fff; }
+#ch-explain{ font-size:13px; font-family:var(--mono); margin-top:8px; }
+#trace-text{ width:100%; height:300px; font-family:var(--mono); font-size:12px; background:var(--chip); color:var(--ink); border:1px solid var(--line); border-radius:4px; }
+/* táctil */
+#touch{ display:none; position:absolute; inset:auto 0 0 0; pointer-events:none; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); justify-content:space-between; align-items:flex-end; }
+@media (pointer:coarse){ body:not([data-screen]) #touch, body[data-screen="game"] #touch{ display:flex; } }
+#joy{ pointer-events:auto; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); position:relative; touch-action:none; }
+#joy-knob{ position:absolute; left:50%; top:50%; width:54px; height:54px; margin:-27px 0 0 -27px; border-radius:50%; background:rgba(143,230,255,.55); }
+.tbtns{ pointer-events:auto; display:grid; grid-template-columns:repeat(2,64px); gap:10px; }
+.tbtns button{ width:64px; height:64px; border-radius:50%; background:rgba(18,32,39,.8); border:2px solid rgba(255,179,71,.6); color:#f4efe3; font-family:var(--display); font-size:12px; touch-action:none; }
+.tbtns button[aria-pressed="true"]{ background:rgba(92,225,230,.5); }
+/* responsive */
+@media (pointer:coarse){ #hint{ bottom:auto; top:10px; font-size:14px; } #ctx-hint{ top:auto; bottom:160px; } }
+@media (max-width:600px){ #hud{ font-size:12px; gap:6px 10px; padding:6px 10px; } #hud-level{ width:100%; font-size:14px; } .hud-item span{ display:none; } .hud-item::before{ color:var(--muted); } #hud-term::before{ content:'Term. '; color:var(--muted); font-family:var(--body); } #hud-emp::before{ content:'EMP '; color:var(--muted); font-family:var(--body); } #hud-dis::before{ content:'Dist. '; color:var(--muted); font-family:var(--body); } #hud-time::before{ content:''; } .hud-btn{ padding:4px 8px; font-size:12px; } }
+@media (max-width:900px) and (orientation:portrait){ #main{ flex-direction:column; } #automata-panel{ width:100%; max-height:46%; border-left:0; border-top:1px solid var(--line); } #ap-diagram{ height:170px; } }
+@media (max-width:900px){ #automata-panel{ font-size:13px; } .lab{ grid-template-columns:1fr; } #win-stats{ grid-template-columns:repeat(2,1fr); } #ch-opts{ grid-template-columns:repeat(2,1fr); } .menu-veil{ background:rgba(8,14,17,.84); } #hud{ gap:10px; } }
+</style>
+</head>
+<body data-screen="menu">
+<div id="app">
+  <header id="hud" hidden>
+    <span id="hud-level">Nivel</span>
+    <span class="hud-item"><span>Terminales</span><b id="hud-term">0/0</b></span>
+    <span class="hud-item"><span>EMP</span><b id="hud-emp">2</b></span>
+    <span class="hud-item"><span>Distractor</span><b id="hud-dis">listo</b></span>
+    <span class="hud-item"><span>Tiempo</span><b id="hud-time">00:00</b></span>
+    <span id="hud-sneak" hidden>Sigilo</span>
+    <span id="hud-alarm" hidden>ALARMA</span>
+    <button class="hud-btn" id="btn-automata" aria-pressed="false" title="Modo Autómata (Tab)">Autómata</button>
+    <button class="hud-btn" id="btn-pause" title="Pausa (Esc)">Pausa</button>
+  </header>
+  <div id="main">
+    <div id="stage">
+      <canvas id="game" aria-label="Escenario del juego"></canvas>
+      <div id="ctx-hint" hidden>Mantén E para copiar los datos</div>
+      <div id="hint" hidden role="status"></div>
+      <div id="touch">
+        <div id="joy" aria-label="Palanca de movimiento"><div id="joy-knob"></div></div>
+        <div class="tbtns">
+          <button id="t-sneak" aria-pressed="false">Sigilo</button><button id="t-hack">Copiar</button>
+          <button id="t-emp">EMP</button><button id="t-throw">Lanzar</button>
+          <button id="t-auto" style="grid-column:span 2;width:100%;border-radius:32px;height:44px">Autómata</button>
+        </div>
+      </div>
+    </div>
+    <aside id="automata-panel" hidden aria-label="Modo Autómata">
+      <h2>Modo Autómata <button class="hud-btn" id="ap-close" aria-label="Cerrar panel">Cerrar</button></h2>
+      <div id="ap-tabs"></div>
+      <canvas id="ap-diagram" aria-label="Diagrama de estados"></canvas>
+      <div><div id="ap-state">—</div><div id="ap-type"></div></div>
+      <div class="ap-box"><span class="k">Última transición y salida λ</span><div id="ap-last"></div></div>
+      <div class="ap-box"><span class="k">Cadena de entrada w (últimos símbolos)</span><div id="ap-w">ε</div><div id="ap-path"></div></div>
+      <div class="ap-box wrap-x"><span class="k">Función de transición δ</span><table class="delta" id="ap-delta"></table></div>
+      <div class="ap-actions"><button class="btn" id="ap-trace">Ver traza JSON</button><span>Z / X cambian de enemigo · el tiempo va más lento</span></div>
+    </aside>
+  </div>
+
+  <section class="screen" id="menu">
+    <canvas id="demo" aria-hidden="true"></canvas><div class="menu-veil"></div>
+    <div class="menu-body">
+      <h1 class="title">Estado Crítico<span class="q">δ(PATRULLAR, visto) = PERSEGUIR</span></h1>
+      <p class="lead">Infíltrate en la facultad sin ser descubierto. Cada guardia, cámara y dron es una máquina de estados finitos que puedes observar, predecir y engañar.</p>
+      <div class="menu-list">
+        <button id="btn-play" class="primary">Jugar</button>
+        <button id="btn-lab">Laboratorio de autómatas</button>
+        <button id="btn-how">Cómo jugar</button>
+        <button id="btn-opts">Opciones</button>
+      </div>
+      <ol id="ticker" aria-label="Transiciones en vivo"></ol>
+    </div>
+  </section>
+
+  <section class="screen" id="levels" hidden><div class="page">
+    <button class="back" data-back>Volver</button>
+    <h1>Elige un nivel</h1><p class="sub">Copia los datos de todas las terminales y llega a la salida. Ganas una estrella por completar el nivel, otra si no activas alarmas y otra si resuelves el desafío del autómata.</p>
+    <div id="level-list"></div>
+  </div></section>
+
+  <section class="screen" id="howto" hidden><div class="page">
+    <button class="back" data-back>Volver</button>
+    <h1>Cómo jugar</h1><p class="sub">Tu objetivo es copiar los datos de las terminales y salir. Los enemigos no improvisan: siguen su función de transición δ al pie de la letra.</p>
+    <div class="how">
+      <section><h2>Controles</h2><ul>
+        <li><kbd>WASD</kbd> o flechas: moverse</li><li><kbd>Shift</kbd>: sigilo (silencioso y lento)</li>
+        <li><kbd>E</kbd> o <kbd>Espacio</kbd> mantenido: copiar datos</li><li><kbd>Q</kbd>: pulso EMP</li>
+        <li><kbd>F</kbd> o clic: lanzar distractor</li><li><kbd>Tab</kbd>: Modo Autómata · <kbd>Z</kbd>/<kbd>X</kbd>: cambiar de enemigo</li>
+        <li><kbd>Esc</kbd>: pausa · en el celular usa la palanca y los botones</li></ul></section>
+      <section><h2>Alfabeto del Centinela (Σ)</h2><div class="sym-grid">
+        <code>s</code><span>Pulso EMP recibido (prioridad 1)</span><code>c</code><span>Jugador en rango de ataque</span><code>v</code><span>Jugador visto</span>
+        <code>p</code><span>Jugador perdido de vista</span><code>l</code><span>Jugador sale del rango</span><code>g</code><span>Alarma global</span>
+        <code>r</code><span>Ruido escuchado</span><code>d</code><span>Destino alcanzado</span><code>t</code><span>Temporizador agotado</span></div></section>
+      <section><h2>Ideas para sobrevivir</h2><ul>
+        <li>Caminar normal hace ruido; las rejillas metálicas hacen ruido incluso en sigilo.</li>
+        <li>En las sombras eres casi invisible si vas en sigilo.</li>
+        <li>Un centinela en ATACAR tarda medio segundo en atraparte: aléjate y leerá <code>l</code>.</li>
+        <li>Rompe la línea de visión y leerá <code>p</code>: pasará a BUSCAR.</li>
+        <li>Cámaras y drones envían <code>g</code>: todos los centinelas irán a investigar.</li></ul></section>
+    </div>
+  </div></section>
+
+  <section class="screen" id="lab" hidden><div class="page">
+    <button class="back" data-back>Volver</button>
+    <h1>Laboratorio de autómatas</h1><p class="sub">Ejecuta cadenas paso a paso, valida definiciones y minimiza autómatas. Puedes editar el JSON y volver a validarlo.</p>
+    <div class="lab">
+      <div class="card"><h2>Definición</h2>
+        <select id="lab-select" aria-label="Autómata"></select>
+        <textarea id="lab-json" spellcheck="false" aria-label="Definición JSON"></textarea>
+        <div class="row"><button class="btn main" id="lab-validate">Validar JSON</button><button class="btn" id="lab-minimize">Minimizar</button></div>
+        <p id="lab-status" role="status"></p><ul id="lab-valid"></ul><div id="lab-min"></div></div>
+      <div class="card"><div><div id="lab-title"></div><div id="lab-kind"></div></div>
+        <canvas id="lab-diagram" aria-label="Diagrama del autómata"></canvas>
+        <div id="lab-cur"></div><div id="lab-wshow"></div>
+        <div class="wrap-x"><table class="delta" id="lab-delta"></table></div></div>
+      <div class="card"><h2>Inyectar símbolo</h2><div id="lab-syms"></div>
+        <h2>Ejecutar cadena</h2><input id="lab-w" value="rdvclptd" aria-label="Cadena de entrada">
+        <div class="row"><button class="btn main" id="lab-run">Ejecutar</button><button class="btn" id="lab-next">Paso</button><button class="btn" id="lab-reset">Reiniciar</button></div>
+        <h2>Traza de δ*</h2><div class="trace-wrap"><table class="trace"><thead><tr><th>#</th><th>q</th><th>σ</th><th>q′</th><th>λ</th></tr></thead><tbody id="lab-trace"></tbody></table></div></div>
+    </div>
+  </div></section>
+
+  <section class="screen" id="options" hidden><div class="page">
+    <button class="back" data-back>Volver</button>
+    <h1>Opciones</h1>
+    <div class="how" style="max-width:640px"><section>
+      <label>Volumen <input type="range" id="opt-vol" min="0" max="1" step="0.05" style="width:100%"></label>
+      <label>Velocidad del juego con el Modo Autómata abierto <input type="range" id="opt-slow" min="0.15" max="1" step="0.05" style="width:100%"></label>
+      <p><button class="btn" id="opt-reset">Borrar progreso</button></p>
+      <p class="sub">Estado Crítico · Proyecto de aula de Teoría de la Computación · Universidad de Pamplona · Danny Lizka Vargas Rico · 2026.</p>
+    </section></div>
+  </div></section>
+
+  <div class="overlay" id="ov-pause" hidden><div class="dialog"><h2>Pausa</h2>
+    <div class="row"><button class="btn main" id="p-resume">Continuar</button><button class="btn" id="p-restart">Reiniciar nivel</button><button class="btn to-menu">Salir al menú</button></div></div></div>
+  <div class="overlay" id="ov-caught" hidden><div class="dialog"><h2>Detectado</h2><p id="caught-who"></p>
+    <p class="sub" style="margin:0;color:var(--muted)">Así llegó al estado ATACAR:</p><ul id="caught-trace"></ul><div id="caught-w"></div>
+    <div class="row"><button class="btn main" id="c-retry">Reintentar (R)</button><button class="btn to-menu">Salir al menú</button></div></div></div>
+  <div class="overlay" id="ov-win" hidden><div class="dialog"><h2>Nivel completado</h2><div id="win-stars"></div><div id="win-stats"></div>
+    <div class="challenge"><h3>Desafío del autómata</h3><p id="ch-q" style="margin:0"></p><div id="ch-opts"></div><div id="ch-explain" hidden></div></div>
+    <div class="row"><button class="btn main" id="win-next" hidden>Siguiente nivel</button><button class="btn to-menu">Menú de niveles</button></div></div></div>
+  <div class="overlay" id="ov-trace" hidden><div class="dialog"><h2>Traza de la partida</h2><p style="margin:0;color:var(--muted)">Registro de todas las transiciones (q, σ, q′, λ) en formato JSON.</p>
+    <textarea id="trace-text" readonly></textarea><div class="row"><button class="btn main" id="trace-copy">Copiar</button><button class="btn" id="trace-close">Cerrar</button></div></div></div>
+</div>
+<!--SCRIPTS-->
+</body>
+</html>

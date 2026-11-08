@@ -1,0 +1,58 @@
+{
+ "Inducción (bot directo)": {
+  "intentos": 11,
+  "victorias": 11,
+  "sinSerVisto": 3,
+  "tasa": 100,
+  "mejorTiempo": 24
+ },
+ "Inducción (bot prudente)": {
+  "intentos": 11,
+  "victorias": 11,
+  "sinSerVisto": 3,
+  "tasa": 100,
+  "mejorTiempo": 24
+ },
+ "Laboratorio de Cómputo (bot directo)": {
+  "intentos": 22,
+  "victorias": 20,
+  "sinSerVisto": 4,
+  "tasa": 90.9,
+  "mejorTiempo": 26.5
+ },
+ "Laboratorio de Cómputo (bot prudente)": {
+  "intentos": 22,
+  "victorias": 12,
+  "sinSerVisto": 4,
+  "tasa": 54.5,
+  "mejorTiempo": 26.5
+ },
+ "Sala de Servidores (bot directo)": {
+  "intentos": 66,
+  "victorias": 9,
+  "sinSerVisto": 0,
+  "tasa": 13.6,
+  "mejorTiempo": 40.7
+ },
+ "Sala de Servidores (bot prudente)": {
+  "intentos": 66,
+  "victorias": 0,
+  "sinSerVisto": 0,
+  "tasa": 0,
+  "mejorTiempo": null
+ },
+ "Núcleo (bot directo)": {
+  "intentos": 66,
+  "victorias": 7,
+  "sinSerVisto": 0,
+  "tasa": 10.6,
+  "mejorTiempo": 33.5
+ },
+ "Núcleo (bot prudente)": {
+  "intentos": 66,
+  "victorias": 1,
+  "sinSerVisto": 0,
+  "tasa": 1.5,
+  "mejorTiempo": 56
+ }
+}

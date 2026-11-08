@@ -1,0 +1,386 @@
+{
+ "results": [
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U01",
+   "name": "La tabla δ del Centinela coincide con el diseño (63 transiciones)",
+   "ok": true,
+   "msg": "",
+   "ms": 1.146928
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U02-centinela",
+   "name": "Centinela: determinista, completo y sin inalcanzables",
+   "ok": true,
+   "msg": "",
+   "ms": 0.491724
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U02-camara",
+   "name": "Cámara: determinista, completo y sin inalcanzables",
+   "ok": true,
+   "msg": "",
+   "ms": 0.074949
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U02-dron",
+   "name": "Dron rastreador: determinista, completo y sin inalcanzables",
+   "ok": true,
+   "msg": "",
+   "ms": 0.086126
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U03",
+   "name": "δ*(PAT, rdvclptd) = PAT con el recorrido del diseño",
+   "ok": true,
+   "msg": "",
+   "ms": 0.271343
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U04",
+   "name": "El validador detecta no determinismo, incompletitud e inalcanzables",
+   "ok": true,
+   "msg": "",
+   "ms": 0.127214
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U05",
+   "name": "El validador detecta símbolos y estados no declarados",
+   "ok": true,
+   "msg": "",
+   "ms": 0.141839
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U06",
+   "name": "La máquina rechaza definiciones inválidas al construirse",
+   "ok": true,
+   "msg": "",
+   "ms": 0.334122
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U07",
+   "name": "La máquina rechaza símbolos fuera de Σ",
+   "ok": true,
+   "msg": "",
+   "ms": 0.306052
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U08",
+   "name": "Minimización: el Centinela, la Cámara y el Dron ya son mínimos",
+   "ok": true,
+   "msg": "",
+   "ms": 1.254722
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U09",
+   "name": "Minimización: fusiona estados equivalentes {P1, P2}",
+   "ok": true,
+   "msg": "",
+   "ms": 0.18335
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U10",
+   "name": "Minimización elimina estados inalcanzables",
+   "ok": true,
+   "msg": "",
+   "ms": 0.182842
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U11",
+   "name": "Determinismo: 10 000 cadenas aleatorias producen siempre el mismo recorrido",
+   "ok": true,
+   "msg": "",
+   "ms": 595.775576
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U12",
+   "name": "Prioridad de símbolos: s > c > v > p > l > g > r > d > t",
+   "ok": true,
+   "msg": "",
+   "ms": 0.195779
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U13",
+   "name": "Máquina de Moore: la salida depende solo del estado destino",
+   "ok": true,
+   "msg": "",
+   "ms": 0.776832
+  },
+  {
+   "suite": "Núcleo de autómatas",
+   "id": "U14",
+   "name": "Máquina de Mealy: λ(PAT, d) = siguiente_punto y λ(ATA, t) = repetir_ataque",
+   "ok": true,
+   "msg": "",
+   "ms": 0.159535
+  },
+  {
+   "suite": "Niveles",
+   "id": "N00",
+   "name": "Inducción: mapa 30×18 con borde cerrado, inicio, terminales y salida",
+   "ok": true,
+   "msg": "",
+   "ms": 0.202399
+  },
+  {
+   "suite": "Niveles",
+   "id": "N10",
+   "name": "Inducción: todas las terminales y la salida son alcanzables desde el inicio",
+   "ok": true,
+   "msg": "",
+   "ms": 4.970036
+  },
+  {
+   "suite": "Niveles",
+   "id": "N20",
+   "name": "Inducción: las rutas de patrulla están sobre piso y son recorribles",
+   "ok": true,
+   "msg": "",
+   "ms": 0.982983
+  },
+  {
+   "suite": "Niveles",
+   "id": "N01",
+   "name": "Laboratorio de Cómputo: mapa 30×18 con borde cerrado, inicio, terminales y salida",
+   "ok": true,
+   "msg": "",
+   "ms": 0.028557
+  },
+  {
+   "suite": "Niveles",
+   "id": "N11",
+   "name": "Laboratorio de Cómputo: todas las terminales y la salida son alcanzables desde el inicio",
+   "ok": true,
+   "msg": "",
+   "ms": 2.988556
+  },
+  {
+   "suite": "Niveles",
+   "id": "N21",
+   "name": "Laboratorio de Cómputo: las rutas de patrulla están sobre piso y son recorribles",
+   "ok": true,
+   "msg": "",
+   "ms": 2.706214
+  },
+  {
+   "suite": "Niveles",
+   "id": "N02",
+   "name": "Sala de Servidores: mapa 30×18 con borde cerrado, inicio, terminales y salida",
+   "ok": true,
+   "msg": "",
+   "ms": 0.02124
+  },
+  {
+   "suite": "Niveles",
+   "id": "N12",
+   "name": "Sala de Servidores: todas las terminales y la salida son alcanzables desde el inicio",
+   "ok": true,
+   "msg": "",
+   "ms": 7.43313
+  },
+  {
+   "suite": "Niveles",
+   "id": "N22",
+   "name": "Sala de Servidores: las rutas de patrulla están sobre piso y son recorribles",
+   "ok": true,
+   "msg": "",
+   "ms": 1.087527
+  },
+  {
+   "suite": "Niveles",
+   "id": "N03",
+   "name": "Núcleo: mapa 30×18 con borde cerrado, inicio, terminales y salida",
+   "ok": true,
+   "msg": "",
+   "ms": 0.023854
+  },
+  {
+   "suite": "Niveles",
+   "id": "N13",
+   "name": "Núcleo: todas las terminales y la salida son alcanzables desde el inicio",
+   "ok": true,
+   "msg": "",
+   "ms": 12.111502
+  },
+  {
+   "suite": "Niveles",
+   "id": "N23",
+   "name": "Núcleo: las rutas de patrulla están sobre piso y son recorribles",
+   "ok": true,
+   "msg": "",
+   "ms": 1.040095
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S00",
+   "name": "Inducción: 5 min sin jugador, sin errores y con transiciones válidas",
+   "ok": true,
+   "msg": "",
+   "ms": 56.430251
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S01",
+   "name": "Laboratorio de Cómputo: 5 min sin jugador, sin errores y con transiciones válidas",
+   "ok": true,
+   "msg": "",
+   "ms": 57.738425
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S02",
+   "name": "Sala de Servidores: 5 min sin jugador, sin errores y con transiciones válidas",
+   "ok": true,
+   "msg": "",
+   "ms": 48.671181
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S03",
+   "name": "Núcleo: 5 min sin jugador, sin errores y con transiciones válidas",
+   "ok": true,
+   "msg": "",
+   "ms": 31.203123
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S10",
+   "name": "Ruido cercano: ciclo completo PAT → INV → BUS → REG → PAT",
+   "ok": true,
+   "msg": "",
+   "ms": 10.683023
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S11",
+   "name": "Jugador visible: PAT → PER → ATA y captura",
+   "ok": true,
+   "msg": "",
+   "ms": 1.04173
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S12",
+   "name": "Romper la línea de visión: PER → BUS (símbolo p)",
+   "ok": true,
+   "msg": "",
+   "ms": 0.431242
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S13",
+   "name": "EMP: s → ATU y, tras 4 s, t → BUS",
+   "ok": true,
+   "msg": "",
+   "ms": 0.828275
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S14",
+   "name": "Alarma de cámara: BAR → DET → ALA y los centinelas reciben g",
+   "ok": true,
+   "msg": "",
+   "ms": 1.344141
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S15",
+   "name": "Dron: ORB → RAS → MAR (emite g); EMP → REC; recarga → ORB",
+   "ok": true,
+   "msg": "",
+   "ms": 17.028722
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S16",
+   "name": "Sigilo en sombra reduce la distancia de detección a menos de la mitad",
+   "ok": true,
+   "msg": "",
+   "ms": 0.218244
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S17",
+   "name": "Caminar emite ruido; en sigilo no (excepto en rejilla metálica)",
+   "ok": true,
+   "msg": "",
+   "ms": 0.82149
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S18",
+   "name": "Hackear todas las terminales abre la salida y llegar a ella gana el nivel",
+   "ok": true,
+   "msg": "",
+   "ms": 0.935207
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S19",
+   "name": "La salida no funciona si faltan terminales",
+   "ok": true,
+   "msg": "",
+   "ms": 0.317981
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S20",
+   "name": "El distractor no atraviesa muros",
+   "ok": true,
+   "msg": "",
+   "ms": 0.340598
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S21",
+   "name": "Reproducibilidad: misma entrada, misma traza",
+   "ok": true,
+   "msg": "",
+   "ms": 126.258235
+  },
+  {
+   "suite": "Simulación del juego",
+   "id": "S22",
+   "name": "Desafío del autómata: la respuesta coincide con δ* y hay 4 opciones distintas",
+   "ok": true,
+   "msg": "",
+   "ms": 19.001475
+  },
+  {
+   "suite": "Rendimiento",
+   "id": "R01",
+   "name": "Procesar un símbolo toma menos de 1 ms (RNF02)",
+   "ok": true,
+   "msg": "",
+   "ms": 263.261535
+  },
+  {
+   "suite": "Rendimiento",
+   "id": "R02",
+   "name": "15 enemigos: la lógica de un cuadro cabe holgadamente en 16,7 ms (RNF01)",
+   "ok": true,
+   "msg": "",
+   "ms": 180.97206
+  }
+ ],
+ "perf": {
+  "procesar_us": 0.263,
+  "cuadro_ms": 0.05,
+  "enemigos": 15
+ },
+ "fecha": "2026-11-08T00:53:47.562Z"
+}
