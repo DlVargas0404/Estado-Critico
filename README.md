@@ -6,7 +6,7 @@ Videojuego 2D de sigilo en el que cada enemigo es un autómata: los centinelas y
 
 ## Jugar
 
-- **En línea:** https://claude.ai/artifact/StsHwm3dQBZ7cUimikMJx2
+
 - **Sin conexión:** abre `dist/index.html` en el navegador.
 - **GitHub Pages:** en *Settings → Pages*, elige la rama `main` y la carpeta `/docs`.
 
