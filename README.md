@@ -4,11 +4,6 @@ Videojuego 2D de sigilo en el que cada enemigo es un autómata: los centinelas y
 
 ![Modo Autómata](docs/capturas/modo-automata.png)
 
-## Jugar
-
-
-- **Sin conexión:** abre `dist/index.html` en el navegador.
-- **GitHub Pages:** en *Settings → Pages*, elige la rama `main` y la carpeta `/docs`.
 
 ### Controles
 
